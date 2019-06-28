@@ -397,6 +397,7 @@ target_link_libraries(quickstep_relationaloperators_SaveBlocksOperator
                       quickstep_utility_Macros
                       tmb)
 target_link_libraries(quickstep_relationaloperators_SelectOperator
+                      ${GFLAGS_LIB_NAME}
                       glog
                       quickstep_catalog_CatalogRelation
                       quickstep_catalog_CatalogTypedefs
@@ -416,6 +417,7 @@ target_link_libraries(quickstep_relationaloperators_SelectOperator
                       quickstep_utility_Macros
                       quickstep_utility_lipfilter_LIPFilterAdaptiveProber
                       quickstep_utility_lipfilter_LIPFilterUtil
+		      quickstep_utility_StringUtil
                       tmb)
 target_link_libraries(quickstep_relationaloperators_SortMergeRunOperator
                       glog

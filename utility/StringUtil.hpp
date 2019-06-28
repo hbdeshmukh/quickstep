@@ -104,6 +104,16 @@ extern std::string ToZeroPaddedString(std::uint64_t val, int pad_width);
 
 
 /**
+ * @brief Tokenize a string with a given delimiter and return the output as a vector.
+ *
+ * @param input The input string
+ * @param delimiter The delimiter
+ *
+ * @return A vector containing the split tokens.
+ **/
+extern std::vector<std::string> TokenizeString(const std::string &input, char delimiter=',') ;
+
+/**
  * @brief Parse double with significant digits.
  *
  * @param val The value that will be parsed.

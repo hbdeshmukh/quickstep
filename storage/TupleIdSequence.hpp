@@ -22,6 +22,7 @@
 
 #include <cstddef>
 #include <limits>
+#include <random>
 #include <vector>
 
 #include "storage/StorageBlockInfo.hpp"
@@ -135,6 +136,18 @@ class TupleIdSequence {
                   const BitVector<false> &bit_vector)
       : internal_bitvector_(length) {
     internal_bitvector_.assignFromLonger(bit_vector);
+  }
+
+  TupleIdSequence(const tuple_id length, double sampling_rate) 
+      : internal_bitvector_(length) {
+    std::random_device rd;
+    std::mt19937 mt(rd());    
+    std::uniform_real_distribution<double> dist(0, 1);
+    for (auto i = 0; i < internal_bitvector_.size(); ++i) {
+      if (dist(mt) <= sampling_rate) {
+	internal_bitvector_.setBit(i, true);      
+      }    
+    }
   }
 
   /**
