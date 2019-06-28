@@ -155,4 +155,18 @@ DoubleToStringWithSignificantDigits(double val,
   return string_buffer.str();
 }
 
+std::vector<string> TokenizeString(const std::string &input, char delimiter) {
+  // Adapted from martinbroadhurst.com/how-to-split-a-string-in-c.html
+  std::size_t current, previous = 0;
+  std::vector<string> tokens;
+  current = input.find(delimiter);
+  while (current != std::string::npos) {
+    tokens.push_back(input.substr(previous, current - previous));
+    previous = current + 1;
+    current = input.find(delimiter, previous);
+  }
+  tokens.push_back(input.substr(previous, current - previous));
+  return tokens;
+}
+
 }  // namespace quickstep

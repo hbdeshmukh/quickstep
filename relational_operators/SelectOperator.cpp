@@ -19,6 +19,8 @@
 
 #include "relational_operators/SelectOperator.hpp"
 
+#include <algorithm>
+#include <iterator>
 #include <memory>
 #include <vector>
 
@@ -35,14 +37,24 @@
 #include "storage/ValueAccessor.hpp"
 #include "utility/lip_filter/LIPFilterAdaptiveProber.hpp"
 #include "utility/lip_filter/LIPFilterUtil.hpp"
+#include "utility/StringUtil.hpp"
 
+#include "gflags/gflags.h"
 #include "glog/logging.h"
 
 #include "tmb/id_typedefs.h"
 
 namespace quickstep {
 
+DEFINE_double(sampling_rate, 0.1, "The rate for sampling a relational operator");
+DEFINE_string(sampling_tables, "", "A comma separated list of tables to be sampled");
+
+namespace {
+  std::vector<std::string> sampling_table_names = quickstep::TokenizeString(FLAGS_sampling_tables); 
+}
+
 class Predicate;
+
 
 bool SelectOperator::getAllWorkOrders(
     WorkOrdersContainer *container,
@@ -169,8 +181,18 @@ void SelectWorkOrder::execute() {
   // work this ordering may even be adaptive.
   std::unique_ptr<TupleIdSequence> predicate_matches;
   if (predicate_ != nullptr) {
+    if (std::find(std::begin(sampling_table_names), 
+	          std::end(sampling_table_names), 
+		  input_relation_.getName()) != std::begin(sampling_table_names)) {
+      const auto filter_len = block->getTupleStorageSubBlock().getMaxTupleID() + 1;	    
+      std::unique_ptr<TupleIdSequence> sampling_filter(new TupleIdSequence(filter_len, FLAGS_sampling_rate));
+      auto block_output = block->getMatchesForPredicate(predicate_);
+      block_output->intersectWith(*sampling_filter);
+      predicate_matches.reset(block_output);
+    } else { 
     predicate_matches.reset(
         block->getMatchesForPredicate(predicate_));
+    }
   }
 
   std::unique_ptr<TupleIdSequence> matches;
