@@ -89,7 +89,7 @@ bool SelectOperator::getAllWorkOrders(
         container->addNormalWorkOrder(
             new SelectWorkOrder(query_id_, input_relation_, part_id, input_block_id, predicate, simple_projection_,
                                 simple_selection_, selection, output_destination, storage_manager,
-                                CreateLIPFilterAdaptiveProberHelper(lip_deployment_index_, query_context), numa_node),
+                                CreateLIPFilterAdaptiveProberHelper(lip_deployment_index_, query_context), input_relation_is_stored_, numa_node),
             op_index_);
       }
     }
@@ -109,7 +109,7 @@ bool SelectOperator::getAllWorkOrders(
         container->addNormalWorkOrder(
             new SelectWorkOrder(query_id_, input_relation_, part_id, block, predicate, simple_projection_,
                                 simple_selection_, selection, output_destination, storage_manager,
-                                CreateLIPFilterAdaptiveProberHelper(lip_deployment_index_, query_context), numa_node),
+                                CreateLIPFilterAdaptiveProberHelper(lip_deployment_index_, query_context), input_relation_is_stored_, numa_node),
             op_index_);
         ++num_workorders_generated_[part_id];
       }
@@ -181,7 +181,7 @@ void SelectWorkOrder::execute() {
   // work this ordering may even be adaptive.
   std::unique_ptr<TupleIdSequence> predicate_matches;
   if (predicate_ != nullptr) {
-    if (std::find(std::begin(sampling_table_names), 
+    if (input_relation_is_stored_ && std::find(std::begin(sampling_table_names), 
 	          std::end(sampling_table_names), 
 		  input_relation_.getName()) != std::begin(sampling_table_names)) {
       const auto filter_len = block->getTupleStorageSubBlock().getMaxTupleID() + 1;	    

@@ -295,6 +295,7 @@ class SelectWorkOrder : public WorkOrder {
                   InsertDestination *output_destination,
                   StorageManager *storage_manager,
                   LIPFilterAdaptiveProber *lip_filter_adaptive_prober,
+                  const bool input_relation_is_stored,
                   const numa_node_id numa_node = 0)
       : WorkOrder(query_id, part_id),
         input_relation_(input_relation),
@@ -305,7 +306,8 @@ class SelectWorkOrder : public WorkOrder {
         selection_(selection),
         output_destination_(DCHECK_NOTNULL(output_destination)),
         storage_manager_(DCHECK_NOTNULL(storage_manager)),
-        lip_filter_adaptive_prober_(lip_filter_adaptive_prober) {
+        lip_filter_adaptive_prober_(lip_filter_adaptive_prober), 
+        input_relation_is_stored_(input_relation_is_stored) {
     preferred_numa_nodes_.push_back(numa_node);
   }
 
@@ -342,6 +344,7 @@ class SelectWorkOrder : public WorkOrder {
                   InsertDestination *output_destination,
                   StorageManager *storage_manager,
                   LIPFilterAdaptiveProber *lip_filter_adaptive_prober,
+                  const bool input_relation_is_stored,
                   const numa_node_id numa_node = 0)
       : WorkOrder(query_id, part_id),
         input_relation_(input_relation),
@@ -352,7 +355,8 @@ class SelectWorkOrder : public WorkOrder {
         selection_(selection),
         output_destination_(DCHECK_NOTNULL(output_destination)),
         storage_manager_(DCHECK_NOTNULL(storage_manager)),
-        lip_filter_adaptive_prober_(lip_filter_adaptive_prober) {
+        lip_filter_adaptive_prober_(lip_filter_adaptive_prober),
+        input_relation_is_stored_(input_relation_is_stored) {
     preferred_numa_nodes_.push_back(numa_node);
   }
 
@@ -381,6 +385,7 @@ class SelectWorkOrder : public WorkOrder {
   StorageManager *storage_manager_;
 
   std::unique_ptr<LIPFilterAdaptiveProber> lip_filter_adaptive_prober_;
+  const bool input_relation_is_stored_;
 
   DISALLOW_COPY_AND_ASSIGN(SelectWorkOrder);
 };
