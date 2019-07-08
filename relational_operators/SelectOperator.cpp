@@ -183,7 +183,7 @@ void SelectWorkOrder::execute() {
   if (predicate_ != nullptr) {
     if (input_relation_is_stored_ && std::find(std::begin(sampling_table_names), 
 	          std::end(sampling_table_names), 
-		  input_relation_.getName()) != std::begin(sampling_table_names)) {
+		  input_relation_.getName()) != std::end(sampling_table_names)) {
       const auto filter_len = block->getTupleStorageSubBlock().getMaxTupleID() + 1;	    
       std::unique_ptr<TupleIdSequence> sampling_filter(new TupleIdSequence(filter_len, FLAGS_sampling_rate));
       auto block_output = block->getMatchesForPredicate(predicate_);
