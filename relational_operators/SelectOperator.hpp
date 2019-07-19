@@ -40,6 +40,7 @@
 #include "utility/Macros.hpp"
 #include "utility/lip_filter/LIPFilterAdaptiveProber.hpp"
 
+#include "gflags/gflags.h"
 #include "glog/logging.h"
 
 #include "tmb/id_typedefs.h"
@@ -56,6 +57,7 @@ class Scalar;
 class StorageManager;
 class WorkOrderProtosContainer;
 class WorkOrdersContainer;
+DECLARE_string(sampling_tables);
 
 namespace serialization { class WorkOrder; }
 
@@ -307,7 +309,8 @@ class SelectWorkOrder : public WorkOrder {
         output_destination_(DCHECK_NOTNULL(output_destination)),
         storage_manager_(DCHECK_NOTNULL(storage_manager)),
         lip_filter_adaptive_prober_(lip_filter_adaptive_prober), 
-        input_relation_is_stored_(input_relation_is_stored) {
+        input_relation_is_stored_(input_relation_is_stored),
+        sampling_table_names_(TokenizeString(FLAGS_sampling_tables)) {
     preferred_numa_nodes_.push_back(numa_node);
   }
 
@@ -356,7 +359,8 @@ class SelectWorkOrder : public WorkOrder {
         output_destination_(DCHECK_NOTNULL(output_destination)),
         storage_manager_(DCHECK_NOTNULL(storage_manager)),
         lip_filter_adaptive_prober_(lip_filter_adaptive_prober),
-        input_relation_is_stored_(input_relation_is_stored) {
+        input_relation_is_stored_(input_relation_is_stored),
+        sampling_table_names_(TokenizeString(FLAGS_sampling_tables)) {
     preferred_numa_nodes_.push_back(numa_node);
   }
 
@@ -386,6 +390,7 @@ class SelectWorkOrder : public WorkOrder {
 
   std::unique_ptr<LIPFilterAdaptiveProber> lip_filter_adaptive_prober_;
   const bool input_relation_is_stored_;
+  std::vector<std::string> sampling_table_names_;
 
   DISALLOW_COPY_AND_ASSIGN(SelectWorkOrder);
 };
