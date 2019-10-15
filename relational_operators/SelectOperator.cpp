@@ -46,7 +46,8 @@
 
 namespace quickstep {
 
-DEFINE_double(sampling_rate, 0.1, "The rate for sampling a relational operator");
+// Note that there is a 1-1 mapping between sampling rates and sampling_tables.
+DEFINE_string(sampling_rates, "", "The rates for sampling a relational operator");
 DEFINE_string(sampling_tables, "", "A comma separated list of tables to be sampled");
 
 class Predicate;
@@ -180,7 +181,7 @@ void SelectWorkOrder::execute() {
 	          std::end(sampling_table_names_), 
 		  input_relation_.getName()) != std::end(sampling_table_names_)) {
       const auto filter_len = block->getTupleStorageSubBlock().getMaxTupleID() + 1;	    
-      std::unique_ptr<TupleIdSequence> sampling_filter(new TupleIdSequence(filter_len, FLAGS_sampling_rate));
+      std::unique_ptr<TupleIdSequence> sampling_filter(new TupleIdSequence(filter_len, sampling_lookup_[input_relation_.getName()]));
       auto block_output = block->getMatchesForPredicate(predicate_);
       block_output->intersectWith(*sampling_filter);
       predicate_matches.reset(block_output);

@@ -58,6 +58,7 @@ class StorageManager;
 class WorkOrderProtosContainer;
 class WorkOrdersContainer;
 DECLARE_string(sampling_tables);
+DECLARE_string(sampling_rates);
 
 namespace serialization { class WorkOrder; }
 
@@ -310,8 +311,10 @@ class SelectWorkOrder : public WorkOrder {
         storage_manager_(DCHECK_NOTNULL(storage_manager)),
         lip_filter_adaptive_prober_(lip_filter_adaptive_prober), 
         input_relation_is_stored_(input_relation_is_stored),
-        sampling_table_names_(TokenizeString(FLAGS_sampling_tables)) {
+        sampling_table_names_(TokenizeString(FLAGS_sampling_tables)),
+        sampling_rates_(TokenizeString(FLAGS_sampling_rates)) {
     preferred_numa_nodes_.push_back(numa_node);
+    createLookup();
   }
 
   /**
@@ -360,8 +363,10 @@ class SelectWorkOrder : public WorkOrder {
         storage_manager_(DCHECK_NOTNULL(storage_manager)),
         lip_filter_adaptive_prober_(lip_filter_adaptive_prober),
         input_relation_is_stored_(input_relation_is_stored),
-        sampling_table_names_(TokenizeString(FLAGS_sampling_tables)) {
+        sampling_table_names_(TokenizeString(FLAGS_sampling_tables)),
+        sampling_rates_(TokenizeString(FLAGS_sampling_rates)) {
     preferred_numa_nodes_.push_back(numa_node);
+    createLookup();
   }
 
   ~SelectWorkOrder() override {}
@@ -377,6 +382,11 @@ class SelectWorkOrder : public WorkOrder {
   void execute() override;
 
  private:
+  void createLookup() {
+    for (int i = 0; i < sampling_table_names_.size(); ++i) {
+      sampling_lookup_[sampling_table_names_[i]] = std::stod(sampling_rates_[i]);
+    }
+  }
   const CatalogRelationSchema &input_relation_;
   const block_id input_block_id_;
   const Predicate *predicate_;
@@ -390,7 +400,10 @@ class SelectWorkOrder : public WorkOrder {
 
   std::unique_ptr<LIPFilterAdaptiveProber> lip_filter_adaptive_prober_;
   const bool input_relation_is_stored_;
+  // Note that there is 1-1 mapping between table names and rates.
   std::vector<std::string> sampling_table_names_;
+  std::vector<std::string> sampling_rates_;
+  std::unordered_map<std::string, double> sampling_lookup_;
 
   DISALLOW_COPY_AND_ASSIGN(SelectWorkOrder);
 };
